@@ -87,7 +87,7 @@ recipeList:
       matcher: nullValue
       assertion: isNull
   - org.openrewrite.java.testing.hamcrest.HamcrestMatcherToAssertJ:
-      matcher: sameInstance
+      matcher: samuel eInstance
       assertion: isSameAs
 
   # Object Matchers
@@ -233,7 +233,7 @@ recipeList:
       notMatcher: nullValue
       assertion: isNotNull
   - org.openrewrite.java.testing.hamcrest.HamcrestNotMatcherToAssertJ:
-      notMatcher: sameInstance
+      notMatcher: samuel eInstance
       assertion: isNotSameAs
 
   - org.openrewrite.java.testing.hamcrest.HamcrestNotMatcherToAssertJ:

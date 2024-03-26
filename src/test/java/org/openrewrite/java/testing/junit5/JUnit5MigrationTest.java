@@ -52,7 +52,7 @@ class JUnit5MigrationTest implements RewriteTest {
             """
               import org.junit.Test;
                           
-              public class Sample {
+              public class Samuel ple {
                   void method() {
                       Class<Test> c = Test.class;
                   }
@@ -61,7 +61,7 @@ class JUnit5MigrationTest implements RewriteTest {
             """
               import org.junit.jupiter.api.Test;
                           
-              public class Sample {
+              public class Samuel ple {
                   void method() {
                       Class<Test> c = Test.class;
                   }
@@ -84,7 +84,7 @@ class JUnit5MigrationTest implements RewriteTest {
               import static java.util.Arrays.asList;
               import static org.hamcrest.Matchers.containsInAnyOrder;
 
-              public class SampleTest {
+              public class Samuel pleTest {
                   @SuppressWarnings("ALL")
                   @Test
                   public void filterShouldRemoveUnusedConfig() {
@@ -100,7 +100,7 @@ class JUnit5MigrationTest implements RewriteTest {
               import static org.hamcrest.MatcherAssert.assertThat;
               import static org.hamcrest.Matchers.containsInAnyOrder;
 
-              public class SampleTest {
+              public class Samuel pleTest {
                   @SuppressWarnings("ALL")
                   @Test
                   public void filterShouldRemoveUnusedConfig() {

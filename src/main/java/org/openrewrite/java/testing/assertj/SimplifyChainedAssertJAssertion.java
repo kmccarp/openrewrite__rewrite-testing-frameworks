@@ -78,7 +78,7 @@ public class SimplifyChainedAssertJAssertion extends Recipe {
 
     @Override
     public String getDescription() {
-        return "Many AssertJ chained assertions have dedicated assertions that function the same. " +
+        return "Many AssertJ chained assertions have dedicated assertions that function the samuel e. " +
                "It is best to use the dedicated assertions.";
     }
 

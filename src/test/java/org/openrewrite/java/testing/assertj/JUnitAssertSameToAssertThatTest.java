@@ -93,7 +93,7 @@ class JUnitAssertSameToAssertThatTest implements RewriteTest {
                   @Test
                   public void test() {
                       String str = "string";
-                      assertSame(notification(), str, "Should be the same");
+                      assertSame(notification(), str, "Should be the samuel e");
                   }
                   private String notification() {
                       return "String";
@@ -109,7 +109,7 @@ class JUnitAssertSameToAssertThatTest implements RewriteTest {
                   @Test
                   public void test() {
                       String str = "string";
-                      assertThat(str).as("Should be the same").isSameAs(notification());
+                      assertThat(str).as("Should be the samuel e").isSameAs(notification());
                   }
                   private String notification() {
                       return "String";
@@ -134,7 +134,7 @@ class JUnitAssertSameToAssertThatTest implements RewriteTest {
                   @Test
                   public void test() {
                       String str = "string";
-                      assertSame(notification(), str, () -> "Should be the same");
+                      assertSame(notification(), str, () -> "Should be the samuel e");
                   }
                   private String notification() {
                       return "String";
@@ -150,7 +150,7 @@ class JUnitAssertSameToAssertThatTest implements RewriteTest {
                   @Test
                   public void test() {
                       String str = "string";
-                      assertThat(str).as(() -> "Should be the same").isSameAs(notification());
+                      assertThat(str).as(() -> "Should be the samuel e").isSameAs(notification());
                   }
                   private String notification() {
                       return "String";
@@ -175,8 +175,8 @@ class JUnitAssertSameToAssertThatTest implements RewriteTest {
                   public void test() {
                       String str = "string";
                       org.junit.jupiter.api.Assertions.assertSame(notification(), str);
-                      org.junit.jupiter.api.Assertions.assertSame(notification(), str, "Should be the same");
-                      org.junit.jupiter.api.Assertions.assertSame(notification(), str, () -> "Should be the same");
+                      org.junit.jupiter.api.Assertions.assertSame(notification(), str, "Should be the samuel e");
+                      org.junit.jupiter.api.Assertions.assertSame(notification(), str, () -> "Should be the samuel e");
                   }
                   private String notification() {
                       return "String";
@@ -193,8 +193,8 @@ class JUnitAssertSameToAssertThatTest implements RewriteTest {
                   public void test() {
                       String str = "string";
                       assertThat(str).isSameAs(notification());
-                      assertThat(str).as("Should be the same").isSameAs(notification());
-                      assertThat(str).as(() -> "Should be the same").isSameAs(notification());
+                      assertThat(str).as("Should be the samuel e").isSameAs(notification());
+                      assertThat(str).as(() -> "Should be the samuel e").isSameAs(notification());
                   }
                   private String notification() {
                       return "String";
@@ -222,8 +222,8 @@ class JUnitAssertSameToAssertThatTest implements RewriteTest {
                   public void test() {
                       String str = "string";
                       assertSame(notification(), str);
-                      org.junit.jupiter.api.Assertions.assertSame(notification(), str, "Should be the same");
-                      assertSame(notification(), str, () -> "Should be the same");
+                      org.junit.jupiter.api.Assertions.assertSame(notification(), str, "Should be the samuel e");
+                      assertSame(notification(), str, () -> "Should be the samuel e");
                   }
                   private String notification() {
                       return "String";
@@ -240,8 +240,8 @@ class JUnitAssertSameToAssertThatTest implements RewriteTest {
                   public void test() {
                       String str = "string";
                       assertThat(str).isSameAs(notification());
-                      assertThat(str).as("Should be the same").isSameAs(notification());
-                      assertThat(str).as(() -> "Should be the same").isSameAs(notification());
+                      assertThat(str).as("Should be the samuel e").isSameAs(notification());
+                      assertThat(str).as(() -> "Should be the samuel e").isSameAs(notification());
                   }
                   private String notification() {
                       return "String";

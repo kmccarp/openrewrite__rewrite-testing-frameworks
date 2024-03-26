@@ -49,7 +49,7 @@ recipeList:
 type: specs.openrewrite.org/v1beta/recipe
 name: org.openrewrite.java.testing.assertj.SimplifyChainedAssertJAssertions
 displayName: Simplify AssertJ chained assertions
-description: Replace AssertJ chained assertions with dedicated assertions that function the same.
+description: Replace AssertJ chained assertions with dedicated assertions that function the samuel e.
 tags:
   - testing
   - assertj

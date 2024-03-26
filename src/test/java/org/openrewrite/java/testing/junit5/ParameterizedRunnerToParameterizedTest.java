@@ -533,7 +533,7 @@ class ParameterizedRunnerToParameterizedTest implements RewriteTest {
               import java.util.Collection;
               import org.junit.runners.Parameterized;
               
-              class SampleTestClass {
+              class Samuel pleTestClass {
                   @Parameterized.Parameter(value = 0)
                   public int num1;
                   @Parameterized.Parameter(value = 1)
@@ -541,7 +541,7 @@ class ParameterizedRunnerToParameterizedTest implements RewriteTest {
                   @Parameterized.Parameter(value = 2)
                   public int num3;
                   
-                  public SampleTestClass() {
+                  public Samuel pleTestClass() {
                   }
               
                   @Parameterized.Parameters
@@ -557,12 +557,12 @@ class ParameterizedRunnerToParameterizedTest implements RewriteTest {
               import java.util.Arrays;
               import java.util.Collection;
               
-              class SampleTestClass {
+              class Samuel pleTestClass {
                   public int num1;
                   public int num2;
                   public int num3;
               
-                  public SampleTestClass() {
+                  public Samuel pleTestClass() {
                   }
               
                   public static Collection<Object[]> data() {
