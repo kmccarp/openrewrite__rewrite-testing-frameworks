@@ -52,7 +52,7 @@ public class AssertTrueInstanceofToAssertInstanceOf extends Recipe {
 
                 if (junit5Matcher.matches(mi)) {
                     maybeRemoveImport("org.junit.jupiter.api.Assertions.assertTrue");
-                    Expression argument = mi.getArguments().get(0);
+                    Expression argument = mi.getArguments().getFirst();
                     if (mi.getArguments().size() == 1) {
                         reason = null;
                     } else if (mi.getArguments().size() == 2) {
@@ -61,8 +61,7 @@ public class AssertTrueInstanceofToAssertInstanceOf extends Recipe {
                         return mi;
                     }
 
-                    if (argument instanceof J.InstanceOf) {
-                        J.InstanceOf instanceOf = (J.InstanceOf) argument;
+                    if (argument instanceof J.InstanceOf instanceOf) {
                         expression = instanceOf.getExpression();
                         clazz = instanceOf.getClazz();
                     } else {
@@ -73,16 +72,15 @@ public class AssertTrueInstanceofToAssertInstanceOf extends Recipe {
                     Expression argument;
                     if (mi.getArguments().size() == 1) {
                         reason = null;
-                        argument = mi.getArguments().get(0);
+                        argument = mi.getArguments().getFirst();
                     } else if (mi.getArguments().size() == 2) {
-                        reason = mi.getArguments().get(0);
+                        reason = mi.getArguments().getFirst();
                         argument = mi.getArguments().get(1);
                     } else {
                         return mi;
                     }
 
-                    if (argument instanceof J.InstanceOf) {
-                        J.InstanceOf instanceOf = (J.InstanceOf) argument;
+                    if (argument instanceof J.InstanceOf instanceOf) {
                         expression = instanceOf.getExpression();
                         clazz = instanceOf.getClazz();
                     } else {

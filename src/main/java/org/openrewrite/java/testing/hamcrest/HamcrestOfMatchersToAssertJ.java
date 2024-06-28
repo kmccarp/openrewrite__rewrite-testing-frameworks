@@ -60,7 +60,7 @@ public class HamcrestOfMatchersToAssertJ extends Recipe {
         public J.MethodInvocation visitMethodInvocation(J.MethodInvocation methodInvocation, ExecutionContext ctx) {
             J.MethodInvocation mi = super.visitMethodInvocation(methodInvocation, ctx);
             List<Expression> arguments = mi.getArguments();
-            Expression ofExpression = arguments.get(arguments.size() - 1);
+            Expression ofExpression = arguments.getLast();
             boolean allOfMatcherMatches = ALL_OF_MATCHER.matches(ofExpression);
             if (!ASSERT_THAT_MATCHER.matches(mi) || !(ANY_OF_MATCHER.matches(ofExpression) || allOfMatcherMatches)) {
                 return mi;
@@ -68,7 +68,7 @@ public class HamcrestOfMatchersToAssertJ extends Recipe {
 
             // Skip anyOf(Iterable)
             List<Expression> anyOfArguments = ((J.MethodInvocation) ofExpression).getArguments();
-            if (TypeUtils.isAssignableTo("java.lang.Iterable", anyOfArguments.get(0).getType())) {
+            if (TypeUtils.isAssignableTo("java.lang.Iterable", anyOfArguments.getFirst().getType())) {
                 return mi;
             }
 
@@ -82,7 +82,7 @@ public class HamcrestOfMatchersToAssertJ extends Recipe {
             // .as("...")
             if (arguments.size() == 3) {
                 template.append(".as(#{any(java.lang.String)})\n");
-                parameters.add(arguments.get(0));
+                parameters.add(arguments.getFirst());
             }
 
             // .satisfiesAnyOf(...) or .satisfies(...)

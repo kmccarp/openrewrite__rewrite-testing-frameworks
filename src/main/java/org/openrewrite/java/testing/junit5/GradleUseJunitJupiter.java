@@ -47,9 +47,11 @@ public class GradleUseJunitJupiter extends Recipe {
 
     @Override
     public String getDescription() {
-        return "By default Gradle's `Test` tasks use JUnit 4. " +
-               "Gradle `Test` tasks must be configured with `useJUnitPlatform()` to run JUnit Jupiter tests. " +
-               "This recipe adds the `useJUnitPlatform()` method call to the `Test` task configuration.";
+        return """
+               By default Gradle's `Test` tasks use JUnit 4. \
+               Gradle `Test` tasks must be configured with `useJUnitPlatform()` to run JUnit Jupiter tests. \
+               This recipe adds the `useJUnitPlatform()` method call to the `Test` task configuration.\
+               """;
     }
 
     private static final String USE_JUNIT_PLATFORM_PATTERN = "org.gradle.api.tasks.testing.Test useJUnitPlatform()";
@@ -111,7 +113,7 @@ public class GradleUseJunitJupiter extends Recipe {
             @Override
             public J.MethodInvocation visitMethodInvocation(J.MethodInvocation m, AtomicBoolean found) {
                 // Groovy gradle scripts being weakly type-attributed means we will miss likely-correct changes if we are too strict
-                if ("useJUnitPlatform".equals(m.getSimpleName()) && (m.getArguments().isEmpty() || m.getArguments().size() == 1 && m.getArguments().get(0) instanceof J.Empty)) {
+                if ("useJUnitPlatform".equals(m.getSimpleName()) && (m.getArguments().isEmpty() || m.getArguments().size() == 1 && m.getArguments().getFirst() instanceof J.Empty)) {
                     found.set(true);
                     return m;
                 }
@@ -126,7 +128,7 @@ public class GradleUseJunitJupiter extends Recipe {
         public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext ctx) {
             J.MethodInvocation m = super.visitMethodInvocation(method, ctx);
             // Groovy gradle scripts being weakly type-attributed means we will miss changes if we are too strict
-            if ("useJUnit".equals(m.getSimpleName()) && (m.getArguments().isEmpty() || m.getArguments().size() == 1 && m.getArguments().get(0) instanceof J.Empty)) {
+            if ("useJUnit".equals(m.getSimpleName()) && (m.getArguments().isEmpty() || m.getArguments().size() == 1 && m.getArguments().getFirst() instanceof J.Empty)) {
                 JavaType.Method useJUnitPlatformType = Optional.ofNullable(m.getMethodType())
                         .map(JavaType.Method::getDeclaringType)
                         .flatMap(declaringType -> declaringType.getMethods()
@@ -146,15 +148,17 @@ public class GradleUseJunitJupiter extends Recipe {
         public G.CompilationUnit visitCompilationUnit(G.CompilationUnit cu, ExecutionContext ctx) {
             G.CompilationUnit template = GradleParser.builder()
                     .build()
-                    .parse("plugins {\n" +
-                           "    id 'java'\n" +
-                           "}\n" +
-                           "tasks.withType(Test).configureEach {\n" +
-                           "    useJUnitPlatform()\n" +
-                           "}")
+                    .parse("""
+                           plugins {
+                               id 'java'
+                           }
+                           tasks.withType(Test).configureEach {
+                               useJUnitPlatform()
+                           }\
+                           """)
                     .map(G.CompilationUnit.class::cast)
                     .collect(Collectors.toList())
-                    .get(0);
+                    .getFirst();
             J.MethodInvocation configureEachInvocation = (J.MethodInvocation) template.getStatements().get(1);
             return cu.withStatements(ListUtils.concat(cu.getStatements(), configureEachInvocation));
         }
@@ -173,7 +177,7 @@ public class GradleUseJunitJupiter extends Recipe {
             // tasks.named("test", Test) { }
             switch (mName) {
                 case "test":
-                    if (!(m.getArguments().size() == 1 && m.getArguments().get(0) instanceof J.Lambda)) {
+                    if (!(m.getArguments().size() == 1 && m.getArguments().getFirst() instanceof J.Lambda)) {
                         return m;
                     }
                     // Other DSLs may be named "test" so only assume it is test {} if it isn't enclosed in anything else
@@ -185,7 +189,7 @@ public class GradleUseJunitJupiter extends Recipe {
                     if (m.getArguments().isEmpty()) {
                         return m;
                     }
-                    if (!(m.getArguments().get(0) instanceof J.Literal && "test".equals(((J.Literal) m.getArguments().get(0)).getValue()))) {
+                    if (!(m.getArguments().getFirst() instanceof J.Literal && "test".equals(((J.Literal) m.getArguments().getFirst()).getValue()))) {
                         return m;
                     }
                     // The final argument must be a J.Lambda
@@ -196,12 +200,12 @@ public class GradleUseJunitJupiter extends Recipe {
                 case "withType":
                     if (m.getSelect() == null
                         || !TypeUtils.isOfClassType(m.getSelect().getType(), "org.gradle.api.tasks.TaskContainer")
-                        || !(m.getArguments().get(0) instanceof J.Identifier && "Test".equals(((J.Identifier) m.getArguments().get(0)).getSimpleName()))) {
+                        || !(m.getArguments().getFirst() instanceof J.Identifier && "Test".equals(((J.Identifier) m.getArguments().getFirst()).getSimpleName()))) {
                         return m;
                     }
                     break;
                 case "configureEach":
-                    if(m.getArguments().size() != 1 || !(m.getArguments().get(0) instanceof J.Lambda)) {
+                    if(m.getArguments().size() != 1 || !(m.getArguments().getFirst() instanceof J.Lambda)) {
                         return m;
                     }
                     if(m.getSelect() == null || !(m.getSelect() instanceof J.MethodInvocation)) {
@@ -210,8 +214,8 @@ public class GradleUseJunitJupiter extends Recipe {
                     J.MethodInvocation select = (J.MethodInvocation) m.getSelect();
                     if(!"withType".equals(select.getSimpleName())
                        || select.getArguments().size() != 1
-                       || !(select.getArguments().get(0) instanceof J.Identifier)
-                       || !"Test".equals(((J.Identifier) select.getArguments().get(0)).getSimpleName())) {
+                       || !(select.getArguments().getFirst() instanceof J.Identifier)
+                       || !"Test".equals(((J.Identifier) select.getArguments().getFirst()).getSimpleName())) {
                         return m;
                     }
                     break;
@@ -232,15 +236,17 @@ public class GradleUseJunitJupiter extends Recipe {
             }
             G.CompilationUnit cu = GradleParser.builder()
                     .build()
-                    .parse("plugins {\n" +
-                           "    id 'java'\n" +
-                           "}\n" +
-                           "tasks.withType(Test) {\n" +
-                           "    useJUnitPlatform()\n" +
-                           "}")
+                    .parse("""
+                           plugins {
+                               id 'java'
+                           }
+                           tasks.withType(Test) {
+                               useJUnitPlatform()
+                           }\
+                           """)
                     .map(G.CompilationUnit.class::cast)
                     .collect(Collectors.toList())
-                    .get(0);
+                    .getFirst();
             J.MethodInvocation useJUnitPlatform = Optional.of(cu.getStatements().get(1))
                     .map(J.MethodInvocation.class::cast)
                     .map(J.MethodInvocation::getArguments)
@@ -249,7 +255,7 @@ public class GradleUseJunitJupiter extends Recipe {
                     .map(J.Lambda::getBody)
                     .map(J.Block.class::cast)
                     .map(J.Block::getStatements)
-                    .map(statements -> statements.get(0))
+                    .map(statements -> statements.getFirst())
                     .map(J.Return.class::cast)
                     .map(J.Return::getExpression)
                     .map(J.MethodInvocation.class::cast)

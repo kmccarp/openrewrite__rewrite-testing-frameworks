@@ -59,7 +59,7 @@ public class AssertEqualsBooleanToAssertBoolean extends Recipe {
                 J.MethodInvocation mi = (J.MethodInvocation) super.visitMethodInvocation(method, ctx);
                 if (ASSERT_EQUALS.matches(mi) && isBooleanLiteral(mi)) {
                     StringBuilder sb = new StringBuilder();
-                    String assertMethod = Boolean.parseBoolean(((J.Literal) mi.getArguments().get(0)).getValueSource())
+                    String assertMethod = Boolean.parseBoolean(((J.Literal) mi.getArguments().getFirst()).getValueSource())
                             ? "assertTrue" : "assertFalse";
                     Expression assertion = mi.getArguments().get(1);
                     if (mi.getSelect() == null) {
@@ -80,7 +80,7 @@ public class AssertEqualsBooleanToAssertBoolean extends Recipe {
                     JavaTemplate t;
                     if (mi.getSelect() == null) {
                         t = JavaTemplate.builder(sb.toString())
-                                .staticImports(String.format("org.junit.jupiter.api.Assertions.%s", assertMethod))
+                                .staticImports("org.junit.jupiter.api.Assertions.%s".formatted(assertMethod))
                                 .javaParser(javaParser(ctx))
                                 .build();
                     } else {
@@ -95,8 +95,8 @@ public class AssertEqualsBooleanToAssertBoolean extends Recipe {
             }
 
             private boolean isBooleanLiteral(J.MethodInvocation method) {
-                if (!method.getArguments().isEmpty() && method.getArguments().get(0) instanceof J.Literal) {
-                    J.Literal literal = (J.Literal) method.getArguments().get(0);
+                if (!method.getArguments().isEmpty() && method.getArguments().getFirst() instanceof J.Literal) {
+                    J.Literal literal = (J.Literal) method.getArguments().getFirst();
                     return JavaType.Primitive.Boolean.equals(literal.getType());
                 }
 

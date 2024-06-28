@@ -79,7 +79,7 @@ public class HamcrestNotMatcherToAssertJ extends Recipe {
                 if (!NOT_MATCHER.matches(notMethodInvocation)) {
                     return mi;
                 }
-                Expression matcherArgument = ((J.MethodInvocation) notMethodInvocation).getArguments().get(0);
+                Expression matcherArgument = ((J.MethodInvocation) notMethodInvocation).getArguments().getFirst();
                 if (mi.getArguments().size() == 2) {
                     return handleTwoArgumentCase(mi, matcherArgument, ctx);
                 }
@@ -91,7 +91,7 @@ public class HamcrestNotMatcherToAssertJ extends Recipe {
         }
 
         private J.MethodInvocation handleTwoArgumentCase(J.MethodInvocation mi, Expression matcherArgument, ExecutionContext ctx) {
-            Expression actualArgument = mi.getArguments().get(0);
+            Expression actualArgument = mi.getArguments().getFirst();
             if (!MATCHERS_MATCHER.matches(matcherArgument) || SUB_MATCHER.matches(matcherArgument)) {
                 return mi;
             }
@@ -102,7 +102,7 @@ public class HamcrestNotMatcherToAssertJ extends Recipe {
             String argumentsTemplate = originalArguments.stream()
                     .map(a -> typeToIndicator(a.getType()))
                     .collect(Collectors.joining(", "));
-            JavaTemplate template = JavaTemplate.builder(String.format("assertThat(%s).%s(%s)",
+            JavaTemplate template = JavaTemplate.builder("assertThat(%s).%s(%s)".formatted(
                             actual, assertion, argumentsTemplate))
                     .javaParser(JavaParser.fromJavaVersion().classpathFromResources(ctx, "assertj-core-3.24"))
                     .staticImports("org.assertj.core.api.Assertions.assertThat")
@@ -122,7 +122,7 @@ public class HamcrestNotMatcherToAssertJ extends Recipe {
         }
 
         private J.MethodInvocation handleThreeArgumentCase(J.MethodInvocation mi, Expression matcherArgument, ExecutionContext ctx) {
-            Expression reasonArgument = mi.getArguments().get(0);
+            Expression reasonArgument = mi.getArguments().getFirst();
             Expression actualArgument = mi.getArguments().get(1);
             if (!MATCHERS_MATCHER.matches(matcherArgument) || SUB_MATCHER.matches(matcherArgument)) {
                 return mi;
@@ -134,7 +134,7 @@ public class HamcrestNotMatcherToAssertJ extends Recipe {
             String argumentsTemplate = originalArguments.stream()
                     .map(a -> typeToIndicator(a.getType()))
                     .collect(Collectors.joining(", "));
-            JavaTemplate template = JavaTemplate.builder(String.format("assertThat(%s).as(#{any(String)}).%s(%s)",
+            JavaTemplate template = JavaTemplate.builder("assertThat(%s).as(#{any(String)}).%s(%s)".formatted(
                             actual, assertion, argumentsTemplate))
                     .javaParser(JavaParser.fromJavaVersion().classpathFromResources(ctx, "assertj-core-3.24"))
                     .staticImports("org.assertj.core.api.Assertions.assertThat")
@@ -155,7 +155,7 @@ public class HamcrestNotMatcherToAssertJ extends Recipe {
         private String typeToIndicator(JavaType type) {
             String str = type instanceof JavaType.Primitive || type.toString().startsWith("java.") ?
                     type.toString().replaceAll("<.*>", "") : "java.lang.Object";
-            return String.format("#{any(%s)}", str);
+            return "#{any(%s)}".formatted(str);
         }
     }
 }

@@ -60,7 +60,7 @@ public class AssertTrueComparisonToAssertEquals extends Recipe {
             public J visitMethodInvocation(J.MethodInvocation method, ExecutionContext ctx) {
                 J.MethodInvocation mi = (J.MethodInvocation) super.visitMethodInvocation(method, ctx);
                 if (ASSERT_TRUE.matches(mi) && isEqualBinary(mi)) {
-                    J.Binary binary = (J.Binary) mi.getArguments().get(0);
+                    J.Binary binary = (J.Binary) mi.getArguments().getFirst();
                     StringBuilder sb = new StringBuilder();
                     Object[] args;
                     if (mi.getSelect() != null) {
@@ -100,7 +100,7 @@ public class AssertTrueComparisonToAssertEquals extends Recipe {
                     return false;
                 }
 
-                final Expression firstArgument = method.getArguments().get(0);
+                final Expression firstArgument = method.getArguments().getFirst();
                 if (!(firstArgument instanceof J.Binary)) {
                     return false;
                 }

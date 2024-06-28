@@ -68,9 +68,9 @@ public class AssertEqualsNullToAssertNull extends Recipe {
                     sb.append("assertNull(#{any(java.lang.Object)}");
                     if (mi.getArguments().size() == 3) {
                         sb.append(", #{any()}");
-                        args = new Object[]{(isNullLiteral(mi.getArguments().get(0)) ? mi.getArguments().get(1) : mi.getArguments().get(0)), mi.getArguments().get(2)};
+                        args = new Object[]{(isNullLiteral(mi.getArguments().getFirst()) ? mi.getArguments().get(1) : mi.getArguments().getFirst()), mi.getArguments().get(2)};
                     } else {
-                        args = new Object[]{(isNullLiteral(mi.getArguments().get(0)) ? mi.getArguments().get(1) : mi.getArguments().get(0))};
+                        args = new Object[]{(isNullLiteral(mi.getArguments().getFirst()) ? mi.getArguments().get(1) : mi.getArguments().getFirst())};
                     }
                     sb.append(")");
                     JavaTemplate t;
@@ -94,7 +94,7 @@ public class AssertEqualsNullToAssertNull extends Recipe {
 
             private boolean hasNullLiteralArg(J.MethodInvocation method) {
                 if (method.getArguments().size() > 1) {
-                    return isNullLiteral(method.getArguments().get(0)) || isNullLiteral(method.getArguments().get(1));
+                    return isNullLiteral(method.getArguments().getFirst()) || isNullLiteral(method.getArguments().get(1));
                 }
                 return false;
             }

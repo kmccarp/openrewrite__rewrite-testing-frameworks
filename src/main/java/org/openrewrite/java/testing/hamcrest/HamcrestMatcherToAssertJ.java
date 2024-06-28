@@ -89,9 +89,9 @@ public class HamcrestMatcherToAssertJ extends Recipe {
 
         private J.MethodInvocation replace(J.MethodInvocation mi, ExecutionContext ctx) {
             List<Expression> mia = mi.getArguments();
-            Expression reasonArgument = mia.size() == 3 ? mia.get(0) : null;
+            Expression reasonArgument = mia.size() == 3 ? mia.getFirst() : null;
             Expression actualArgument = mia.get(mia.size() - 2);
-            Expression matcherArgument = mia.get(mia.size() - 1);
+            Expression matcherArgument = mia.getLast();
             if (!matchersMatcher.matches(matcherArgument) || subMatcher.matches(matcherArgument)) {
                 return mi;
             }
@@ -101,10 +101,10 @@ public class HamcrestMatcherToAssertJ extends Recipe {
 
             String actual = typeToIndicator(actualArgument.getType());
             J.MethodInvocation matcherArgumentMethod = (J.MethodInvocation) matcherArgument;
-            JavaTemplate template = JavaTemplate.builder(String.format(
+            JavaTemplate template = JavaTemplate.builder((
                             "assertThat(%s)" +
-                            (reasonArgument != null ? ".as(#{any(String)})" : "") +
-                            ".%s(%s)",
+                                    (reasonArgument != null ? ".as(#{any(String)})" : "") +
+                                    ".%s(%s)").formatted(
                             actual, assertion, getArgumentsTemplate(matcherArgumentMethod)))
                     .javaParser(JavaParser.fromJavaVersion().classpathFromResources(ctx, "assertj-core-3.24"))
                     .staticImports(
@@ -136,8 +136,8 @@ public class HamcrestMatcherToAssertJ extends Recipe {
         private String getArgumentsTemplate(J.MethodInvocation matcherArgument) {
             List<Expression> methodArguments = matcherArgument.getArguments();
             if (CLOSE_TO_MATCHER.matches(matcherArgument)) {
-                return String.format("%s, within(%s)",
-                        typeToIndicator(methodArguments.get(0).getType()),
+                return "%s, within(%s)".formatted(
+                        typeToIndicator(methodArguments.getFirst().getType()),
                         typeToIndicator(methodArguments.get(1).getType()));
             }
             return methodArguments.stream()
@@ -147,15 +147,15 @@ public class HamcrestMatcherToAssertJ extends Recipe {
         }
 
         private String typeToIndicator(JavaType type) {
-            if (type instanceof JavaType.Array) {
-                type = ((JavaType.Array) type).getElemType();
+            if (type instanceof JavaType.Array array) {
+                type = array.getElemType();
                 String str = type instanceof JavaType.Primitive || type.toString().startsWith("java.") ?
                         type.toString().replaceAll("<.*>", "") : "java.lang.Object";
-                return String.format("#{anyArray(%s)}", str);
+                return "#{anyArray(%s)}".formatted(str);
             } else {
                 String str = type instanceof JavaType.Primitive || type.toString().startsWith("java.") ?
                         type.toString().replaceAll("<.*>", "") : "java.lang.Object";
-                return String.format("#{any(%s)}", str);
+                return "#{any(%s)}".formatted(str);
             }
         }
     }

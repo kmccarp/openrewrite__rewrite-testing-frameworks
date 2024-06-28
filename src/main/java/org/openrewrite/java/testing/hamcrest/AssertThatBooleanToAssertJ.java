@@ -45,7 +45,7 @@ public class AssertThatBooleanToAssertJ extends Recipe {
             public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext ctx) {
                 J.MethodInvocation mi = super.visitMethodInvocation(method, ctx);
                 if (ASSERT_THAT_MATCHER.matches(mi)) {
-                    Expression reasonArgument = mi.getArguments().get(0);
+                    Expression reasonArgument = mi.getArguments().getFirst();
                     Expression booleanArgument = mi.getArguments().get(1);
                     maybeAddImport("org.assertj.core.api.Assertions", "assertThat");
                     maybeRemoveImport("org.hamcrest.MatcherAssert.assertThat");

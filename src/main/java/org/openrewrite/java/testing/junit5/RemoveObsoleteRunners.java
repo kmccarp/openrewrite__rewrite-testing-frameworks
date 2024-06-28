@@ -40,8 +40,10 @@ public class RemoveObsoleteRunners extends Recipe {
 
     @Override
     public String getDescription() {
-        return "Some JUnit 4 `@RunWith` annotations do not require replacement with an equivalent JUnit Jupiter `@ExtendsWith` annotation. " +
-                "This can be used to remove those runners that either do not have a JUnit Jupiter equivalent or do not require a replacement as part of JUnit 4 to 5 migration.";
+        return """
+                Some JUnit 4 `@RunWith` annotations do not require replacement with an equivalent JUnit Jupiter `@ExtendsWith` annotation. \
+                This can be used to remove those runners that either do not have a JUnit Jupiter equivalent or do not require a replacement as part of JUnit 4 to 5 migration.\
+                """;
     }
 
     @Override

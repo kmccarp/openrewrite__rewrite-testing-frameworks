@@ -58,8 +58,7 @@ public class AssertToAssertions extends Recipe {
 
         @Override
         public @Nullable J preVisit(J tree, ExecutionContext ctx) {
-            if (tree instanceof JavaSourceFile) {
-                JavaSourceFile c = (JavaSourceFile) tree;
+            if (tree instanceof JavaSourceFile c) {
                 boolean hasWildcardAssertImport = false;
                 for (J.Import imp : c.getImports()) {
                     if ("org.junit.Assert.*".equals(imp.getQualid().toString())) {
@@ -86,7 +85,7 @@ public class AssertToAssertions extends Recipe {
                     .getVisitor());
 
             List<JRightPadded<Expression>> args = m.getPadding().getArguments().getPadding().getElements();
-            Expression firstArg = args.get(0).getElement();
+            Expression firstArg = args.getFirst().getElement();
             // Suppress arg-switching for Assertions.assertEquals(String, String)
             if (args.size() == 2) {
                 if ("assertSame".equals(m.getSimpleName()) ||
@@ -101,8 +100,8 @@ public class AssertToAssertions extends Recipe {
                 // Move the first arg to be the last argument
 
                 List<JRightPadded<Expression>> newArgs = new ArrayList<>(args);
-                JRightPadded<Expression> first = newArgs.remove(0);
-                JRightPadded<Expression> lastArg = args.get(args.size() - 1);
+                JRightPadded<Expression> first = newArgs.removeFirst();
+                JRightPadded<Expression> lastArg = args.getLast();
                 boolean lastArgComments = !lastArg.getAfter().getComments().isEmpty();
 
                 newArgs = ListUtils.mapFirst(newArgs, e -> e.withElement(e.getElement().withPrefix(first.getElement().getPrefix())));

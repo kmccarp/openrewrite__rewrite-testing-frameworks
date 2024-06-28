@@ -70,7 +70,7 @@ public class JUnitAssertArrayEqualsToAssertThat extends Recipe {
             }
 
             List<Expression> args = method.getArguments();
-            Expression expected = args.get(0);
+            Expression expected = args.getFirst();
             Expression actual = args.get(1);
 
             // Make sure there is a static import for "org.assertj.core.api.Assertions.assertThat" (even if not referenced)

@@ -98,11 +98,11 @@ public class AssertionsArgumentOrder extends Recipe {
             final Expression expected;
             final Expression actual;
             if (isJupiterAssertion(mi)) {
-                expected = mi.getArguments().get(0);
+                expected = mi.getArguments().getFirst();
                 actual = mi.getArguments().get(1);
             } else if (isTestNgAssertion(mi)) {
                 expected = mi.getArguments().get(1);
-                actual = mi.getArguments().get(0);
+                actual = mi.getArguments().getFirst();
             } else {
                 return mi;
             }
@@ -138,10 +138,10 @@ public class AssertionsArgumentOrder extends Recipe {
 
             // static final field
             JavaType.Variable var = null;
-            if (expression instanceof J.Identifier) {
-                var = ((J.Identifier) expression).getFieldType();
-            } else if (expression instanceof J.FieldAccess) {
-                var = ((J.FieldAccess) expression).getName().getFieldType();
+            if (expression instanceof J.Identifier identifier) {
+                var = identifier.getFieldType();
+            } else if (expression instanceof J.FieldAccess access) {
+                var = access.getName().getFieldType();
             }
             if (var != null) {
                 return var.hasFlags(Flag.Static, Flag.Final);

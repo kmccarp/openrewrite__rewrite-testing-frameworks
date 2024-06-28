@@ -86,21 +86,20 @@ public class CategoryToTag extends Recipe {
 
         private Stream<J.Annotation> categoryAnnotationToTagAnnotations(J.Annotation maybeCategory) {
             if (maybeCategory.getArguments() != null && TypeUtils.isOfClassType(maybeCategory.getAnnotationType().getType(), "org.junit.experimental.categories.Category")) {
-                Expression annotationArgument = maybeCategory.getArguments().iterator().next();
-                if (annotationArgument instanceof J.Assignment) {
-                    annotationArgument = ((J.Assignment) annotationArgument).getAssignment();
+                Expression annotationArgument = maybeCategory.getArguments().getFirst();
+                if (annotationArgument instanceof J.Assignment assignment) {
+                    annotationArgument = assignment.getAssignment();
                 }
 
                 Stream<J.FieldAccess> categories = Stream.empty();
-                if (annotationArgument instanceof J.NewArray) {
-                    J.NewArray argArray = (J.NewArray) annotationArgument;
+                if (annotationArgument instanceof J.NewArray argArray) {
                     if (argArray.getInitializer() != null) {
                         categories = argArray.getInitializer().stream()
                                 .map(J.FieldAccess.class::cast);
                     }
                 }
-                if (annotationArgument instanceof J.FieldAccess) {
-                    categories = Stream.of((J.FieldAccess) annotationArgument);
+                if (annotationArgument instanceof J.FieldAccess access) {
+                    categories = Stream.of(access);
                 }
                 return categories.map(category -> {
                     String targetName = convertToTagName(category);

@@ -94,8 +94,7 @@ public class CleanupMockitoImports extends Recipe {
         @Override
         public @Nullable J preVisit(J tree, ExecutionContext ctx) {
             stopAfterPreVisit();
-            if (tree instanceof JavaSourceFile) {
-                JavaSourceFile sf = (JavaSourceFile) tree;
+            if (tree instanceof JavaSourceFile sf) {
 
                 // Prevent removing mockito imports when an associated mockito method type is not well formed
                 final List<String> unknownTypeMethodInvocationNames = new ArrayList<>();

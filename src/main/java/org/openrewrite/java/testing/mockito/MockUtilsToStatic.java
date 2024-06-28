@@ -77,8 +77,8 @@ public class MockUtilsToStatic extends Recipe {
                 Cursor parent = getCursor().dropParentUntil(J.class::isInstance);
                 if (parent.getValue() instanceof J.VariableDeclarations.NamedVariable) {
                     Object namedVar = parent.dropParentUntil(J.class::isInstance).getValue();
-                    if (namedVar instanceof J.VariableDeclarations) {
-                        doAfterVisit(new DeleteStatement<>((J.VariableDeclarations) namedVar));
+                    if (namedVar instanceof J.VariableDeclarations declarations) {
+                        doAfterVisit(new DeleteStatement<>(declarations));
                     }
                 }
             }

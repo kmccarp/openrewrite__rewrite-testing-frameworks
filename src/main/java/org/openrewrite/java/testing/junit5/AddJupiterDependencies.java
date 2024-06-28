@@ -42,9 +42,11 @@ public class AddJupiterDependencies extends ScanningRecipe<AddDependency.Accumul
 
     @Override
     public String getDescription() {
-        return "Adds JUnit Jupiter dependencies to a Maven or Gradle project. " +
-               "Junit Jupiter can be added either with the artifact junit-jupiter, or both of junit-jupiter-api and junit-jupiter-engine. " +
-               "This adds \"junit-jupiter\" dependency unless \"junit-jupiter-api\" or \"junit-jupiter-engine\" are already present.";
+        return """
+               Adds JUnit Jupiter dependencies to a Maven or Gradle project. \
+               Junit Jupiter can be added either with the artifact junit-jupiter, or both of junit-jupiter-api and junit-jupiter-engine. \
+               This adds "junit-jupiter" dependency unless "junit-jupiter-api" or "junit-jupiter-engine" are already present.\
+               """;
     }
 
     @Override
@@ -93,7 +95,7 @@ public class AddJupiterDependencies extends ScanningRecipe<AddDependency.Accumul
         @Override
         public G.CompilationUnit visitCompilationUnit(G.CompilationUnit t, ExecutionContext ctx) {
             Optional<GradleProject> maybeGp = t.getMarkers().findFirst(GradleProject.class);
-            if(!maybeGp.isPresent()) {
+            if(maybeGp.isEmpty()) {
                 return t;
             }
             GradleProject gp = maybeGp.get();

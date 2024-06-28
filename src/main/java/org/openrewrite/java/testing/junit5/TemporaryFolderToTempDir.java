@@ -148,7 +148,7 @@ public class TemporaryFolderToTempDir extends Recipe {
                             .imports("java.io.File")
                             .javaParser(javaParser(ctx))
                             .build()
-                            .apply(getCursor(), mi.getCoordinates().replace(), args.get(0), tempDir);
+                            .apply(getCursor(), mi.getCoordinates().replace(), args.getFirst(), tempDir);
                 }
             }
         });
@@ -204,20 +204,22 @@ public class TemporaryFolderToTempDir extends Recipe {
                         List<Statement> params = m.getParameters();
                         return "newFolder".equals(m.getSimpleName()) &&
                                params.size() == 2 &&
-                               hasClassType(params.get(0), "java.io.File") &&
+                               hasClassType(params.getFirst(), "java.io.File") &&
                                hasClassType(params.get(1), "java.lang.String");
                     }).map(J.MethodDeclaration::getMethodType).filter(Objects::nonNull).findAny().orElse(null);
 
             if (newFolderMethodDeclaration == null) {
                 cd = JavaTemplate.builder(
-                                "private static File newFolder(File root, String... subDirs) throws IOException {\n" +
-                                "    String subFolder = String.join(\"/\", subDirs);\n" +
-                                "    File result = new File(root, subFolder);\n" +
-                                "    if(!result.mkdirs()) {\n" +
-                                "        throw new IOException(\"Couldn't create folders \" + root);\n" +
-                                "    }\n" +
-                                "    return result;\n" +
-                                "}")
+                                """
+                                private static File newFolder(File root, String... subDirs) throws IOException {
+                                    String subFolder = String.join("/", subDirs);
+                                    File result = new File(root, subFolder);
+                                    if(!result.mkdirs()) {
+                                        throw new IOException("Couldn't create folders " + root);
+                                    }
+                                    return result;
+                                }\
+                                """)
                         .contextSensitive()
                         .imports("java.io.File", "java.io.IOException")
                         .javaParser(javaParser(ctx))
@@ -277,14 +279,14 @@ public class TemporaryFolderToTempDir extends Recipe {
                                         updateCursor(mi),
                                         mi.getCoordinates().replace(),
                                         tempDir,
-                                        args.get(0)
+                                        args.getFirst()
                                 );
                     } else {
                         final StringBuilder sb = new StringBuilder("newFolder(#{any(java.io.File)}");
                         args.forEach(arg -> sb.append(", #{any(java.lang.String)}"));
                         sb.append(")");
                         List<Object> templateArgs = new ArrayList<>(args);
-                        templateArgs.add(0, tempDir);
+                        templateArgs.addFirst(tempDir);
                         mi = JavaTemplate.builder(sb.toString())
                                 .contextSensitive()
                                 .imports("java.io.File")

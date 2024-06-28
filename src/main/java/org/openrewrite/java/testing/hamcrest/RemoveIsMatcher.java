@@ -48,7 +48,7 @@ public class RemoveIsMatcher extends Recipe {
                 } else if (IS_MATCHER.matches(mi) && getCursor().pollNearestMessage("ASSERT_THAT") != null) {
                     maybeRemoveImport("org.hamcrest.Matchers.is");
                     maybeRemoveImport("org.hamcrest.CoreMatchers.is");
-                    return mi.getArguments().get(0).withPrefix(mi.getPrefix());
+                    return mi.getArguments().getFirst().withPrefix(mi.getPrefix());
                 }
                 return super.visitMethodInvocation(mi, ctx);
             }

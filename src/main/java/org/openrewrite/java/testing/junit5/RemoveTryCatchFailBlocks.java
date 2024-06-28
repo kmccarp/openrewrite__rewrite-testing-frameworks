@@ -44,8 +44,10 @@ public class RemoveTryCatchFailBlocks extends Recipe {
 
     @Override
     public String getDescription() {
-        return "Replace `try-catch` blocks where `catch` merely contains a `fail()` for `fail(String)` statement " +
-               "with `Assertions.assertDoesNotThrow(() -> { ... })`.";
+        return """
+               Replace `try-catch` blocks where `catch` merely contains a `fail()` for `fail(String)` statement \
+               with `Assertions.assertDoesNotThrow(() -> { ... })`.\
+               """;
     }
 
     @Override
@@ -72,11 +74,11 @@ public class RemoveTryCatchFailBlocks extends Recipe {
             We would not want to convert for instance fail(cleanUpAndReturnMessage()) might still have side
             effects that we don't want to remove.
              */
-            J.Try.Catch catchBlock = try_.getCatches().get(0);
+            J.Try.Catch catchBlock = try_.getCatches().getFirst();
             if (catchBlock.getBody().getStatements().size() != 1) {
                 return try_;
             }
-            Statement statement = catchBlock.getBody().getStatements().get(0);
+            Statement statement = catchBlock.getBody().getStatements().getFirst();
             if (!(statement instanceof J.MethodInvocation)) {
                 return try_;
             }
@@ -88,7 +90,7 @@ public class RemoveTryCatchFailBlocks extends Recipe {
             }
 
             // Only replace known cases
-            Expression failCallArgument = failCall.getArguments().get(0);
+            Expression failCallArgument = failCall.getArguments().getFirst();
             if (failCallArgument instanceof J.Empty) {
                 return replaceWithAssertDoesNotThrowWithoutStringExpression(ctx, try_);
             } else if (failCallArgument instanceof J.MethodInvocation && GET_MESSAGE_MATCHER.matches(failCallArgument)) {
@@ -97,8 +99,7 @@ public class RemoveTryCatchFailBlocks extends Recipe {
                 return replaceWithAssertDoesNotThrowWithStringExpression(ctx, try_, failCallArgument);
             } else if (isException(failCallArgument)) {
                 return replaceWithAssertDoesNotThrowWithoutStringExpression(ctx, try_);
-            } else if (failCallArgument instanceof J.Binary) {
-                J.Binary binaryArg = (J.Binary) failCallArgument;
+            } else if (failCallArgument instanceof J.Binary binaryArg) {
                 Expression left = binaryArg.getLeft();
                 Expression right = binaryArg.getRight();
                 // Rewrite fail("message: " + e), fail("message: " + e.getMessage())
@@ -128,10 +129,10 @@ public class RemoveTryCatchFailBlocks extends Recipe {
 
         private void maybeRemoveCatchTypes(J.Try try_) {
             maybeRemoveImport("org.junit.jupiter.api.Assertions.fail");
-            JavaType catchType = try_.getCatches().get(0).getParameter().getTree().getType();
+            JavaType catchType = try_.getCatches().getFirst().getParameter().getTree().getType();
             if (catchType != null) {
                 Stream.of(catchType)
-                        .flatMap(t -> t instanceof JavaType.MultiCatch ? ((JavaType.MultiCatch) t).getThrowableTypes().stream() : Stream.of(t))
+                        .flatMap(t -> t instanceof JavaType.MultiCatch mc ? mc.getThrowableTypes().stream() : Stream.of(t))
                         .map(TypeUtils::asFullyQualified)
                         .filter(Objects::nonNull)
                         .forEach(t -> maybeRemoveImport(t.getFullyQualifiedName()));

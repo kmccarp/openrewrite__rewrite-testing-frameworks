@@ -57,7 +57,7 @@ public class AssertFalseEqualsToAssertNotEquals extends Recipe {
             @Override
             public J visitMethodInvocation(J.MethodInvocation method, ExecutionContext ctx) {
                 J.MethodInvocation mi = (J.MethodInvocation) super.visitMethodInvocation(method, ctx);
-                if (ASSERT_FALSE.matches(method) && isEquals(method.getArguments().get(0))) {
+                if (ASSERT_FALSE.matches(method) && isEquals(method.getArguments().getFirst())) {
                     StringBuilder sb = new StringBuilder();
                     Object[] args;
                     if (mi.getSelect() == null) {
@@ -72,8 +72,8 @@ public class AssertFalseEqualsToAssertNotEquals extends Recipe {
                     }
                     sb.append(")");
 
-                    J.MethodInvocation s = (J.MethodInvocation) method.getArguments().get(0);
-                    args = method.getArguments().size() == 2 ? new Object[]{s.getSelect(), s.getArguments().get(0), mi.getArguments().get(1)} : new Object[]{s.getSelect(), s.getArguments().get(0)};
+                    J.MethodInvocation s = (J.MethodInvocation) method.getArguments().getFirst();
+                    args = method.getArguments().size() == 2 ? new Object[]{s.getSelect(), s.getArguments().getFirst(), mi.getArguments().get(1)} : new Object[]{s.getSelect(), s.getArguments().getFirst()};
                     JavaTemplate t;
                     if (mi.getSelect() == null) {
                         t = JavaTemplate.builder(sb.toString())

@@ -47,8 +47,7 @@ public class CleanupJUnitImports extends Recipe {
         @Override
         public J preVisit(J tree, ExecutionContext ctx) {
             stopAfterPreVisit();
-            if (tree instanceof JavaSourceFile) {
-                JavaSourceFile c = (JavaSourceFile) tree;
+            if (tree instanceof JavaSourceFile c) {
                 for (J.Import imp : c.getImports()) {
                     String packageName = imp.getPackageName();
                     if (packageName.startsWith("junit") || (packageName.startsWith("org.junit") && !packageName.contains("jupiter"))) {

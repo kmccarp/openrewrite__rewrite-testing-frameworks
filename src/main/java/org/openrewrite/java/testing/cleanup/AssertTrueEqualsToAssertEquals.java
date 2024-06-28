@@ -58,7 +58,7 @@ public class AssertTrueEqualsToAssertEquals extends Recipe {
             @Override
             public J visitMethodInvocation(J.MethodInvocation method, ExecutionContext ctx) {
                 J.MethodInvocation mi = (J.MethodInvocation) super.visitMethodInvocation(method, ctx);
-                if (ASSERT_TRUE.matches(mi) && isEquals(mi.getArguments().get(0))) {
+                if (ASSERT_TRUE.matches(mi) && isEquals(mi.getArguments().getFirst())) {
                     StringBuilder sb = new StringBuilder();
                     if (mi.getSelect() == null) {
                         maybeRemoveImport("org.junit.jupiter.api.Assertions");
@@ -66,14 +66,14 @@ public class AssertTrueEqualsToAssertEquals extends Recipe {
                     } else {
                         sb.append("Assertions.");
                     }
-                    J.MethodInvocation s = (J.MethodInvocation) mi.getArguments().get(0);
+                    J.MethodInvocation s = (J.MethodInvocation) mi.getArguments().getFirst();
                     sb.append("assertEquals(#{any(java.lang.Object)},#{any(java.lang.Object)}");
                     Object[] args;
                     if (mi.getArguments().size() == 2) {
-                        args = new Object[]{s.getSelect(), s.getArguments().get(0), mi.getArguments().get(1)};
+                        args = new Object[]{s.getSelect(), s.getArguments().getFirst(), mi.getArguments().get(1)};
                         sb.append(", #{any()}");
                     } else {
-                        args = new Object[]{s.getSelect(), s.getArguments().get(0)};
+                        args = new Object[]{s.getSelect(), s.getArguments().getFirst()};
                     }
                     sb.append(")");
                     JavaTemplate t;

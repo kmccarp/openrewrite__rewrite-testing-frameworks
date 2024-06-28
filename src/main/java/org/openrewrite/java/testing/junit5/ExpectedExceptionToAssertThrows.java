@@ -77,9 +77,9 @@ public class ExpectedExceptionToAssertThrows extends Recipe {
             J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, ctx);
 
             cd = cd.withBody(cd.getBody().withStatements(ListUtils.map(cd.getBody().getStatements(), statement -> {
-                if (statement instanceof J.VariableDeclarations) {
+                if (statement instanceof J.VariableDeclarations declarations) {
                     //noinspection ConstantConditions
-                    if (TypeUtils.isOfClassType(((J.VariableDeclarations) statement).getTypeExpression().getType(),
+                    if (TypeUtils.isOfClassType(declarations.getTypeExpression().getType(),
                             "org.junit.rules.ExpectedException")) {
                         maybeRemoveImport("org.junit.Rule");
                         maybeRemoveImport("org.junit.rules.ExpectedException");
@@ -117,7 +117,7 @@ public class ExpectedExceptionToAssertThrows extends Recipe {
                     return m;
                 }
 
-                Expression expectMethodArg = args.get(0);
+                Expression expectMethodArg = args.getFirst();
                 isExpectArgAMatcher = isHamcrestMatcher(expectMethodArg);
                 JavaType.FullyQualified argType = TypeUtils.asFullyQualified(expectMethodArg.getType());
                 if (!isExpectArgAMatcher && (argType == null || !"java.lang.Class".equals(argType.getFullyQualifiedName()))) {
@@ -132,7 +132,7 @@ public class ExpectedExceptionToAssertThrows extends Recipe {
                     return m;
                 }
 
-                final Expression expectMessageMethodArg = args.get(0);
+                final Expression expectMessageMethodArg = args.getFirst();
                 isExpectMessageArgAMatcher = isHamcrestMatcher(expectMessageMethodArg);
                 if (!isExpectMessageArgAMatcher && !TypeUtils.isString(expectMessageMethodArg.getType())) {
                     return m;
@@ -146,7 +146,7 @@ public class ExpectedExceptionToAssertThrows extends Recipe {
                     return m;
                 }
 
-                final Expression expectCauseMethodArg = args.get(0);
+                final Expression expectCauseMethodArg = args.getFirst();
                 isExpectedCauseArgAMatcher = isHamcrestMatcher(expectCauseMethodArg);
                 if (!isExpectedCauseArgAMatcher) {
                     return m;
@@ -158,7 +158,7 @@ public class ExpectedExceptionToAssertThrows extends Recipe {
                     "Throwable exception = " : "";
 
             Object expectedExceptionParam = (expectMethodInvocation == null || isExpectArgAMatcher) ?
-                    "Exception.class" : expectMethodInvocation.getArguments().get(0);
+                    "Exception.class" : expectMethodInvocation.getArguments().getFirst();
 
             String templateString = expectedExceptionParam instanceof String ? "#{}assertThrows(#{}, () -> #{});" : "#{}assertThrows(#{any()}, () -> #{});";
 
@@ -186,7 +186,7 @@ public class ExpectedExceptionToAssertThrows extends Recipe {
                         .apply(
                                 updateCursor(m),
                                 m.getBody().getCoordinates().lastStatement(),
-                                expectMessageMethodInvocation.getArguments().get(0)
+                                expectMessageMethodInvocation.getArguments().getFirst()
                         );
                 maybeAddImport("org.junit.jupiter.api.Assertions", "assertTrue");
             }
@@ -200,21 +200,21 @@ public class ExpectedExceptionToAssertThrows extends Recipe {
             assert m.getBody() != null;
             if (isExpectArgAMatcher) {
                 m = assertThatTemplate.apply(updateCursor(m), m.getBody().getCoordinates().lastStatement(),
-                        "exception", expectMethodInvocation.getArguments().get(0));
+                        "exception", expectMethodInvocation.getArguments().getFirst());
                 maybeAddImport("org.hamcrest.MatcherAssert", "assertThat");
             }
 
             assert m.getBody() != null;
             if (isExpectMessageArgAMatcher) {
                 m = assertThatTemplate.apply(updateCursor(m), m.getBody().getCoordinates().lastStatement(),
-                        "exception.getMessage()", expectMessageMethodInvocation.getArguments().get(0));
+                        "exception.getMessage()", expectMessageMethodInvocation.getArguments().getFirst());
                 maybeAddImport("org.hamcrest.MatcherAssert", "assertThat");
             }
 
             assert m.getBody() != null;
             if (isExpectedCauseArgAMatcher) {
                 m = assertThatTemplate.apply(updateCursor(m), m.getBody().getCoordinates().lastStatement(),
-                        "exception.getCause()", expectCauseMethodInvocation.getArguments().get(0));
+                        "exception.getCause()", expectCauseMethodInvocation.getArguments().getFirst());
                 maybeAddImport("org.hamcrest.MatcherAssert", "assertThat");
             }
 

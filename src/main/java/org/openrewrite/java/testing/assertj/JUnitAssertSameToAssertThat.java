@@ -67,7 +67,7 @@ public class JUnitAssertSameToAssertThat extends Recipe {
             }
 
             List<Expression> args = method.getArguments();
-            Expression expected = args.get(0);
+            Expression expected = args.getFirst();
             Expression actual = args.get(1);
 
             if (args.size() == 2) {

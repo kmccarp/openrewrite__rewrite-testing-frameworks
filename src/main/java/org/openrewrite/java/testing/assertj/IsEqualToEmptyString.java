@@ -53,7 +53,7 @@ public class IsEqualToEmptyString extends Recipe {
                     @Override
                     public J.MethodInvocation visitMethodInvocation(J.MethodInvocation method, ExecutionContext ctx) {
                         J.MethodInvocation mi = super.visitMethodInvocation(method, ctx);
-                        if (IS_EQUAL_TO.matches(mi) && J.Literal.isLiteralValue(mi.getArguments().get(0), "")) {
+                        if (IS_EQUAL_TO.matches(mi) && J.Literal.isLiteralValue(mi.getArguments().getFirst(), "")) {
                             JavaType.Method isEmptyMethodType = mi.getMethodType().withName("isEmpty");
                             return mi
                                     .withName(mi.getName().withSimpleName("isEmpty").withType(isEmptyMethodType))

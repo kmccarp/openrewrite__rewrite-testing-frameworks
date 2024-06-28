@@ -68,20 +68,20 @@ public class JUnitFailToAssertJFail extends Recipe {
 
             if (args.size() == 1) {
                 // fail(), fail(String), fail(Supplier<String>), fail(Throwable)
-                if (args.get(0) instanceof J.Empty) {
+                if (args.getFirst() instanceof J.Empty) {
                     m = JavaTemplate.builder("org.assertj.core.api.Assertions.fail(\"\");")
                             .javaParser(assertionsParser(ctx))
                             .build()
                             .apply(getCursor(), m.getCoordinates().replace());
-                } else if (args.get(0) instanceof J.Literal ||
-                           TypeUtils.isAssignableTo("java.lang.String", args.get(0).getType())) {
+                } else if (args.getFirst() instanceof J.Literal ||
+                           TypeUtils.isAssignableTo("java.lang.String", args.getFirst().getType())) {
                     m = JavaTemplate.builder("org.assertj.core.api.Assertions.fail(#{any()});")
                             .javaParser(assertionsParser(ctx))
                             .build()
                             .apply(
                                     getCursor(),
                                     m.getCoordinates().replace(),
-                                    args.get(0)
+                                    args.getFirst()
                             );
                 } else {
                     m = JavaTemplate.builder("org.assertj.core.api.Assertions.fail(\"\", #{any()});")
@@ -90,7 +90,7 @@ public class JUnitFailToAssertJFail extends Recipe {
                             .apply(
                                     getCursor(),
                                     m.getCoordinates().replace(),
-                                    args.get(0)
+                                    args.getFirst()
                             );
                 }
             } else {

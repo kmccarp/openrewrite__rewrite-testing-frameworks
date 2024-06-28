@@ -44,13 +44,13 @@ class SetupStatementsRewriter {
             J.NewClass nc = (J.NewClass) s;
             Set<String> spies = new HashSet<>();
             for (Expression newClassArg : nc.getArguments()) {
-                if (newClassArg instanceof J.Identifier) {
-                    spies.add(((J.Identifier) newClassArg).getSimpleName());
+                if (newClassArg instanceof J.Identifier identifier) {
+                    spies.add(identifier.getSimpleName());
                 }
             }
 
             assert nc.getBody() != null;
-            J.Block expectationsBlock = (J.Block) nc.getBody().getStatements().get(0);
+            J.Block expectationsBlock = (J.Block) nc.getBody().getStatements().getFirst();
 
             // statement needs to be moved directly before expectations class instantiation
             JavaCoordinates coordinates = nc.getCoordinates().before();
@@ -85,9 +85,7 @@ class SetupStatementsRewriter {
     }
 
     private boolean isSetupStatement(Statement expectationStatement, Set<String> spies) {
-        if (expectationStatement instanceof J.MethodInvocation) {
-            // a method invocation on a mock is not a setup statement
-            J.MethodInvocation methodInvocation = (J.MethodInvocation) expectationStatement;
+        if (expectationStatement instanceof J.MethodInvocation methodInvocation) {
             if (methodInvocation.getSelect() instanceof J.MethodInvocation) {
                 return isSetupStatement((Statement) methodInvocation.getSelect(), spies);
             }
@@ -99,9 +97,9 @@ class SetupStatementsRewriter {
                         spies);
             }
             return isNotMockIdentifier(methodInvocation.getName(), spies);
-        } else if (expectationStatement instanceof J.Assignment) {
+        } else if (expectationStatement instanceof J.Assignment assignment) {
             // an assignment to a jmockit reserved field is not a setup statement
-            JavaType variableType = getVariableTypeFromAssignment((J.Assignment) expectationStatement);
+            JavaType variableType = getVariableTypeFromAssignment(assignment);
             return !TypeUtils.isAssignableTo("mockit.Invocations", variableType);
         }
         return true;

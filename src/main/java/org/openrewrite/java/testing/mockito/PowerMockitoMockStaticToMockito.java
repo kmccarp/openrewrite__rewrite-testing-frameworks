@@ -35,8 +35,10 @@ public class PowerMockitoMockStaticToMockito extends Recipe {
 
     @Override
     public String getDescription() {
-        return "Replaces `PowerMockito.mockStatic()` by `Mockito.mockStatic()`. Removes " +
-               "the `@PrepareForTest` annotation.";
+        return """
+               Replaces `PowerMockito.mockStatic()` by `Mockito.mockStatic()`. Removes \
+               the `@PrepareForTest` annotation.\
+               """;
     }
 
     @Override
@@ -80,8 +82,8 @@ public class PowerMockitoMockStaticToMockito extends Recipe {
 
         @Override
         public @Nullable J visit(@Nullable Tree tree, ExecutionContext ctx) {
-            if (tree instanceof JavaSourceFile) {
-                boolean useTestNg = !FindAnnotations.find((J) tree, "@org.testng.annotations.Test").isEmpty();
+            if (tree instanceof JavaSourceFile file) {
+                boolean useTestNg = !FindAnnotations.find(file, "@org.testng.annotations.Test").isEmpty();
                 initTestFrameworkInfo(useTestNg);
             }
             return super.visit(tree, ctx);
@@ -101,12 +103,12 @@ public class PowerMockitoMockStaticToMockito extends Recipe {
                     List<Expression> arguments = j.getArguments();
                     if (arguments != null && !arguments.isEmpty()) {
                         mockedStaticClasses.addAll(ListUtils.flatMap(arguments, a -> {
-                            if (a instanceof J.NewArray && ((J.NewArray) a).getInitializer() != null) {
+                            if (a instanceof J.NewArray array && array.getInitializer() != null) {
                                 // case `@PrepareForTest( {Object1.class, Object2.class ...} )`
-                                return ((J.NewArray) a).getInitializer();
-                            } else if (a instanceof J.Assignment && ((J.NewArray) ((J.Assignment) a).getAssignment()).getInitializer() != null) {
+                                return array.getInitializer();
+                            } else if (a instanceof J.Assignment assignment && ((J.NewArray) assignment.getAssignment()).getInitializer() != null) {
                                 // case `@PrepareForTest( value = {Object1.class, Object2.class ...} }`
-                                return ((J.NewArray) ((J.Assignment) a).getAssignment()).getInitializer();
+                                return ((J.NewArray) assignment.getAssignment()).getInitializer();
                             } else if (a instanceof J.FieldAccess) {
                                 // case `@PrepareForTest(Object1.class)`
                                 return a;
@@ -199,8 +201,8 @@ public class PowerMockitoMockStaticToMockito extends Recipe {
 
         private static boolean isFieldAlreadyDefined(J.Block classBody, String fieldName) {
             for (Statement statement : classBody.getStatements()) {
-                if (statement instanceof J.VariableDeclarations) {
-                    for (J.VariableDeclarations.NamedVariable namedVariable : ((J.VariableDeclarations) statement).getVariables()) {
+                if (statement instanceof J.VariableDeclarations declarations) {
+                    for (J.VariableDeclarations.NamedVariable namedVariable : declarations.getVariables()) {
                         if (namedVariable.getSimpleName().equals(fieldName)) {
                             return true;
                         }
@@ -224,8 +226,7 @@ public class PowerMockitoMockStaticToMockito extends Recipe {
 
         private static boolean hasMethodWithAnnotation(J.ClassDeclaration classDecl, AnnotationMatcher annotationMatcher) {
             for (Statement statement : classDecl.getBody().getStatements()) {
-                if (statement instanceof J.MethodDeclaration) {
-                    J.MethodDeclaration methodDeclaration = (J.MethodDeclaration) statement;
+                if (statement instanceof J.MethodDeclaration methodDeclaration) {
                     List<J.Annotation> allAnnotations = methodDeclaration.getAllAnnotations();
                     for (J.Annotation annotation : allAnnotations) {
                         if (annotationMatcher.matches(annotation)) {
@@ -239,8 +240,7 @@ public class PowerMockitoMockStaticToMockito extends Recipe {
 
         private static boolean isStaticMockAlreadyClosed(J.Identifier staticMock, J.Block methodBody) {
             for (Statement statement : methodBody.getStatements()) {
-                if (statement instanceof J.MethodInvocation) {
-                    J.MethodInvocation methodInvocation = (J.MethodInvocation) statement;
+                if (statement instanceof J.MethodInvocation methodInvocation) {
                     if (MOCKED_STATIC_CLOSE_MATCHER.matches(methodInvocation)) {
                         if (methodInvocation.getSelect() instanceof J.Identifier) {
                             if (((J.Identifier) methodInvocation.getSelect()).getSimpleName()
@@ -256,8 +256,7 @@ public class PowerMockitoMockStaticToMockito extends Recipe {
 
         private static boolean isStaticMockAlreadyOpened(J.Identifier staticMock, J.Block methodBody) {
             for (Statement statement : methodBody.getStatements()) {
-                if (statement instanceof J.MethodInvocation) {
-                    J.MethodInvocation methodInvocation = (J.MethodInvocation) statement;
+                if (statement instanceof J.MethodInvocation methodInvocation) {
                     if (MOCKED_STATIC_MATCHER.matches(methodInvocation)) {
                         if (methodInvocation.getSelect() instanceof J.Identifier) {
                             if (((J.Identifier) methodInvocation.getSelect()).getSimpleName()
@@ -344,12 +343,12 @@ public class PowerMockitoMockStaticToMockito extends Recipe {
             // is modified to
             // `mockedCalendar.when(() -> Calendar.getInstance())`
             List<Expression> arguments = method.getArguments();
-            String declaringClassName = ((J.FieldAccess) arguments.get(0)).getTarget().toString();
+            String declaringClassName = ((J.FieldAccess) arguments.getFirst()).getTarget().toString();
             J.Identifier mockedField = getFieldIdentifier(MOCK_PREFIX + declaringClassName);
             if (mockedField != null) {
-                arguments.remove(0);
-                J.Literal calledMethod = (J.Literal) arguments.get(0);
-                arguments.remove(0);
+                arguments.removeFirst();
+                J.Literal calledMethod = (J.Literal) arguments.getFirst();
+                arguments.removeFirst();
                 String stringOfArguments = arguments.stream().map(Object::toString).collect(Collectors.joining(","));
                 method = JavaTemplate.builder("() -> #{}.#{}(#{})")
                         .contextSensitive()
@@ -421,7 +420,7 @@ public class PowerMockitoMockStaticToMockito extends Recipe {
                 if (classType == null) {
                     continue;
                 }
-                JavaType.FullyQualified fullyQualifiedMockedType = TypeUtils.asFullyQualified(classType.getTypeParameters().get(0));
+                JavaType.FullyQualified fullyQualifiedMockedType = TypeUtils.asFullyQualified(classType.getTypeParameters().getFirst());
                 if (fullyQualifiedMockedType == null) {
                     continue;
                 }
@@ -449,8 +448,8 @@ public class PowerMockitoMockStaticToMockito extends Recipe {
                                 classlessTypeName
                         );
 
-                J.VariableDeclarations mockField = (J.VariableDeclarations) classDecl.getBody().getStatements().get(0);
-                mockedTypesIdentifiers.put(mockField.getVariables().get(0).getName(), mockedStaticClass);
+                J.VariableDeclarations mockField = (J.VariableDeclarations) classDecl.getBody().getStatements().getFirst();
+                mockedTypesIdentifiers.put(mockField.getVariables().getFirst().getName(), mockedStaticClass);
             }
             getCursor().putMessage(MOCKED_TYPES_FIELDS, mockedTypesIdentifiers);
 
@@ -523,7 +522,7 @@ public class PowerMockitoMockStaticToMockito extends Recipe {
                     .filter(methodInvocation -> methodInvocation.getMethodType().hasFlags(Flag.Static))
                     .collect(Collectors.toList());
             if (staticMethodInvocationsInArguments.size() == 1) {
-                J.MethodInvocation staticMI = staticMethodInvocationsInArguments.get(0);
+                J.MethodInvocation staticMI = staticMethodInvocationsInArguments.getFirst();
                 Expression lambdaInvocation;
                 String declaringClassName = getDeclaringClassName(staticMI);
                 J.Identifier mockedStaticClassField = getFieldIdentifier(MOCK_PREFIX + declaringClassName);

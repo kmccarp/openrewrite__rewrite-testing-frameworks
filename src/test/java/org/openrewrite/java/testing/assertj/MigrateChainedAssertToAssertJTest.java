@@ -125,8 +125,8 @@ class MigrateChainedAssertToAssertJTest implements RewriteTest {
             String finalArgument = firstArg.isEmpty() && !"0".equals(secondArg) ? secondArg : firstArg;
             finalArgument = finalArgument.contains(".") ? finalArgument.split("\\.")[0] : finalArgument;
 
-            String before = String.format(template, formattedAssertBefore);
-            String after = String.format(template, assertAfter.formatted(dedicatedAssertion, finalArgument));
+            String before = template.formatted(formattedAssertBefore);
+            String after = template.formatted(assertAfter.formatted(dedicatedAssertion, finalArgument));
 
             rewriteRun(
               java(before, after)
@@ -183,8 +183,8 @@ class MigrateChainedAssertToAssertJTest implements RewriteTest {
             String finalArgument = "".equals(firstArg) && !"0".equals(secondArg) ? secondArg : firstArg;
             finalArgument = finalArgument.contains(".") ? finalArgument.split("\\.")[0] : finalArgument;
 
-            String before = String.format(template, formattedAssertBefore);
-            String after = String.format(template, assertAfter.formatted(dedicatedAssertion, finalArgument));
+            String before = template.formatted(formattedAssertBefore);
+            String after = template.formatted(assertAfter.formatted(dedicatedAssertion, finalArgument));
 
             rewriteRun(
               java(before, after)
@@ -229,8 +229,8 @@ class MigrateChainedAssertToAssertJTest implements RewriteTest {
             String finalArgument = "".equals(firstArg) && !"0".equals(secondArg) ? secondArg : firstArg;
             finalArgument = finalArgument.contains(".") ? finalArgument.split("\\.")[0] : finalArgument;
 
-            String before = String.format(template, formattedAssertBefore);
-            String after = String.format(template, assertAfter.formatted(dedicatedAssertion, finalArgument));
+            String before = template.formatted(formattedAssertBefore);
+            String after = template.formatted(assertAfter.formatted(dedicatedAssertion, finalArgument));
 
             rewriteRun(
               java(before, after)
@@ -275,8 +275,8 @@ class MigrateChainedAssertToAssertJTest implements RewriteTest {
 
             String finalArgument = "".equals(firstArg) ? secondArg : firstArg;
 
-            String before = String.format(template, formattedAssertBefore);
-            String after = String.format(template, assertAfter.formatted(dedicatedAssertion, finalArgument));
+            String before = template.formatted(formattedAssertBefore);
+            String after = template.formatted(assertAfter.formatted(dedicatedAssertion, finalArgument));
 
             rewriteRun(
               java(before, after)
@@ -321,14 +321,14 @@ class MigrateChainedAssertToAssertJTest implements RewriteTest {
             String assertAfter = !"".equals(firstArg) && !"".equals(secondArg) ? "assertThat(map).%s(%s, %s);" : "assertThat(map).%s(%s);";
 
             String formattedAssertBefore = assertBefore.formatted(chainedAssertion, firstArg, assertToReplace, secondArg);
-            String before = String.format(template, formattedAssertBefore);
+            String before = template.formatted(formattedAssertBefore);
 
             String finalArgument = "".equals(firstArg) ? secondArg : firstArg;
             List<String> formattedArgs = new ArrayList<>(Arrays.asList(dedicatedAssertion, finalArgument));
             if (!"".equals(firstArg) && !"".equals(secondArg)) {
                 formattedArgs.add(secondArg);
             }
-            String after = String.format(template, assertAfter.formatted(formattedArgs.toArray()));
+            String after = template.formatted(assertAfter.formatted(formattedArgs.toArray()));
 
             rewriteRun(
               java(before, after)
@@ -405,11 +405,11 @@ class MigrateChainedAssertToAssertJTest implements RewriteTest {
               }
               """;
 
-            String assertBefore = String.format("assertThat(helloWorld.%s()).%s(%s);", chainedAssertion, assertToReplace, arg);
-            String assertAfter = String.format("assertThat(helloWorld).%s(%s);", dedicatedAssertion, arg);
+            String assertBefore = "assertThat(helloWorld.%s()).%s(%s);".formatted(chainedAssertion, assertToReplace, arg);
+            String assertAfter = "assertThat(helloWorld).%s(%s);".formatted(dedicatedAssertion, arg);
 
-            String before = String.format(template, assertBefore);
-            String after = String.format(template, assertAfter);
+            String before = template.formatted(assertBefore);
+            String after = template.formatted(assertAfter);
 
             rewriteRun(java(before, after));
         }

@@ -96,7 +96,7 @@ public class SimplifyTestThrows extends Recipe {
                         if (th == null || th.isEmpty()) {
                             return true;
                         }
-                        return th.size() == 1 && TypeUtils.isOfClassType(th.get(0).getType(), FQN_JAVA_LANG_EXCEPTION);
+                        return th.size() == 1 && TypeUtils.isOfClassType(th.getFirst().getType(), FQN_JAVA_LANG_EXCEPTION);
                     }
 
                     private boolean hasJUnit5MethodAnnotation(J.MethodDeclaration method) {

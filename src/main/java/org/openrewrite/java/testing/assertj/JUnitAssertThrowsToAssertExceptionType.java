@@ -66,10 +66,10 @@ public class JUnitAssertThrowsToAssertExceptionType extends Recipe {
                 && mi.getArguments().size() == 2
                 && getCursor().getParentTreeCursor().getValue() instanceof J.Block) {
                 J executable = mi.getArguments().get(1);
-                if (executable instanceof J.Lambda) {
-                    executable = ((J.Lambda) executable).withType(THROWING_CALLABLE_TYPE);
-                } else if (executable instanceof J.MemberReference) {
-                    executable = ((J.MemberReference) executable).withType(THROWING_CALLABLE_TYPE);
+                if (executable instanceof J.Lambda lambda) {
+                    executable = lambda.withType(THROWING_CALLABLE_TYPE);
+                } else if (executable instanceof J.MemberReference reference) {
+                    executable = reference.withType(THROWING_CALLABLE_TYPE);
                 } else {
                     executable = null;
                 }
@@ -83,7 +83,7 @@ public class JUnitAssertThrowsToAssertExceptionType extends Recipe {
                             .apply(
                                     getCursor(),
                                     mi.getCoordinates().replace(),
-                                    mi.getArguments().get(0), executable
+                                    mi.getArguments().getFirst(), executable
                             );
                     maybeAddImport("org.assertj.core.api.AssertionsForClassTypes", "assertThatExceptionOfType", false);
                     maybeRemoveImport("org.junit.jupiter.api.Assertions.assertThrows");

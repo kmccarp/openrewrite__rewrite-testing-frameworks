@@ -65,7 +65,7 @@ public class AssertFalseNegationToAssertTrue extends Recipe {
                         sb.append("Assertions.");
                     }
                     sb.append("assertTrue(#{any(java.lang.Boolean)}");
-                    J.Unary unary = (J.Unary) method.getArguments().get(0);
+                    J.Unary unary = (J.Unary) method.getArguments().getFirst();
 
                     Object[] args;
                     if (method.getArguments().size() == 2) {
@@ -95,8 +95,8 @@ public class AssertFalseNegationToAssertTrue extends Recipe {
             }
 
             private boolean isUnaryOperatorNot(J.MethodInvocation method) {
-                if (!method.getArguments().isEmpty() && method.getArguments().get(0) instanceof J.Unary) {
-                    J.Unary unary = (J.Unary) method.getArguments().get(0);
+                if (!method.getArguments().isEmpty() && method.getArguments().getFirst() instanceof J.Unary) {
+                    J.Unary unary = (J.Unary) method.getArguments().getFirst();
                     return unary.getOperator().equals(J.Unary.Type.Not);
                 }
 

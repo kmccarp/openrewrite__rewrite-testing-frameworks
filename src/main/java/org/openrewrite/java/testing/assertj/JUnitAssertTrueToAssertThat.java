@@ -66,7 +66,7 @@ public class JUnitAssertTrueToAssertThat extends Recipe {
             }
 
             List<Expression> args = method.getArguments();
-            Expression actual = args.get(0);
+            Expression actual = args.getFirst();
 
             if (args.size() == 1) {
                 method = JavaTemplate.builder("assertThat(#{any(boolean)}).isTrue();")

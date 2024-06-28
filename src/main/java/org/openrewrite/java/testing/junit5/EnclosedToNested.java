@@ -58,7 +58,7 @@ public class EnclosedToNested extends Recipe {
             public J.ClassDeclaration visitClassDeclaration(J.ClassDeclaration classDecl, ExecutionContext ctx) {
                 J.ClassDeclaration cd = super.visitClassDeclaration(classDecl, ctx);
                 final Set<J.Annotation> runWithEnclosedAnnotationSet = FindAnnotations.find(cd.withBody(null),
-                        String.format("@%s(%s.class)", RUN_WITH, ENCLOSED));
+                        "@%s(%s.class)".formatted(RUN_WITH, ENCLOSED));
                 for (J.Annotation runWithEnclosed : runWithEnclosedAnnotationSet) {
                     cd.getLeadingAnnotations().remove(runWithEnclosed);
                     cd = cd.withBody((J.Block) new AddNestedAnnotationVisitor().visit(cd.getBody(), ctx, getCursor()));

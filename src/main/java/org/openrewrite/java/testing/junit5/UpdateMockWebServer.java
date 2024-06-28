@@ -162,7 +162,7 @@ public class UpdateMockWebServer extends Recipe {
                             }
                         }
                         if (multiVariable != variableDeclarations) {
-                            getCursor().putMessageOnFirstEnclosing(J.ClassDeclaration.class, MOCK_WEBSERVER_VARIABLE, variableDeclarations.getVariables().get(0).getName());
+                            getCursor().putMessageOnFirstEnclosing(J.ClassDeclaration.class, MOCK_WEBSERVER_VARIABLE, variableDeclarations.getVariables().getFirst().getName());
                         }
                         return variableDeclarations;
                     }

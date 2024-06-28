@@ -130,13 +130,13 @@ public class UpdateTestAnnotation extends Recipe {
                             );
 
                     assert m.getBody() != null;
-                    J.Lambda lambda = (J.Lambda) ((J.VariableDeclarations) m.getBody().getStatements().get(0))
-                            .getVariables().get(0).getInitializer();
+                    J.Lambda lambda = (J.Lambda) ((J.VariableDeclarations) m.getBody().getStatements().getFirst())
+                            .getVariables().getFirst().getInitializer();
 
                     assert lambda != null;
 
-                    if (cta.expectedException instanceof J.FieldAccess
-                        && TypeUtils.isAssignableTo("org.junit.Test$None", ((J.FieldAccess) cta.expectedException).getTarget().getType())) {
+                    if (cta.expectedException instanceof J.FieldAccess access
+                        && TypeUtils.isAssignableTo("org.junit.Test$None", access.getTarget().getType())) {
                         m = JavaTemplate.builder("assertDoesNotThrow(#{any(org.junit.jupiter.api.function.Executable)});")
                                 .javaParser(javaParser(ctx))
                                 .staticImports("org.junit.jupiter.api.Assertions.assertDoesNotThrow")

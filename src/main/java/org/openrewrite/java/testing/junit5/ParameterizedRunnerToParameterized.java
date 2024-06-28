@@ -112,10 +112,10 @@ public class ParameterizedRunnerToParameterized extends Recipe {
             for (J.Annotation leadingAnnotation : variableDeclarations.getLeadingAnnotations()) {
                 if (PARAMETER.matches(leadingAnnotation)) {
                     parameterAnnotation = leadingAnnotation;
-                    if (parameterAnnotation.getArguments() != null && !(parameterAnnotation.getArguments().get(0) instanceof J.Empty)) {
-                        J positionArg = parameterAnnotation.getArguments().get(0);
-                        if (positionArg instanceof J.Assignment) {
-                            position = (Integer) ((J.Literal) ((J.Assignment) positionArg).getAssignment()).getValue();
+                    if (parameterAnnotation.getArguments() != null && !(parameterAnnotation.getArguments().getFirst() instanceof J.Empty)) {
+                        J positionArg = parameterAnnotation.getArguments().getFirst();
+                        if (positionArg instanceof J.Assignment assignment) {
+                            position = (Integer) ((J.Literal) assignment.getAssignment()).getValue();
                         } else {
                             position = (Integer) ((J.Literal) positionArg).getValue();
                         }
@@ -173,7 +173,7 @@ public class ParameterizedRunnerToParameterized extends Recipe {
             initStatementParamString = parameterizedTestMethodParameters.stream()
                     .filter(J.VariableDeclarations.class::isInstance)
                     .map(J.VariableDeclarations.class::cast)
-                    .map(v -> v.getVariables().get(0).getSimpleName())
+                    .map(v -> v.getVariables().getFirst().getSimpleName())
                     .collect(Collectors.joining(", "));
 
             // build @ParameterizedTest(#{}) template
@@ -209,7 +209,7 @@ public class ParameterizedRunnerToParameterized extends Recipe {
                 for (Statement parameterizedTestMethodParameter : parameterizedTestMethodParameters) {
                     J.VariableDeclarations vd = (J.VariableDeclarations) parameterizedTestMethodParameter;
                     if (vd.getTypeExpression() != null && vd.getVariables().size() == 1) {
-                        initStatementParams.add(vd.getVariables().get(0).getSimpleName());
+                        initStatementParams.add(vd.getVariables().getFirst().getSimpleName());
                     } else {
                         throw new AssertionError("Expected VariableDeclarations with TypeExpression and single Variable, got [" + parameterizedTestMethodParameter + "]");
                     }
@@ -261,8 +261,7 @@ public class ParameterizedRunnerToParameterized extends Recipe {
                 cd = initMethodDeclarationTemplate.apply(updateCursor(cd), cd.getBody().getCoordinates().lastStatement());
                 J.Block finalBody = cd.getBody();
                 cd = cd.withBody(cd.getBody().withStatements(ListUtils.map(cd.getBody().getStatements(), stmt -> {
-                    if (stmt instanceof J.MethodDeclaration) {
-                        J.MethodDeclaration md = (J.MethodDeclaration) stmt;
+                    if (stmt instanceof J.MethodDeclaration md) {
                         if (md.getName().getSimpleName().equals(initMethodName)) {
                             J.Block body = md.getBody(); // Preserve body formatting
                             return autoFormat(md.withParameters(parameterizedTestMethodParameters).withBody(null),
@@ -278,8 +277,7 @@ public class ParameterizedRunnerToParameterized extends Recipe {
             if (fieldNames != null && !fieldNames.isEmpty()) {
                 J.Block finalBody = cd.getBody();
                 cd = cd.withBody(cd.getBody().withStatements(ListUtils.map(cd.getBody().getStatements(), statement -> {
-                    if (statement instanceof J.VariableDeclarations) {
-                        J.VariableDeclarations varDecls = (J.VariableDeclarations) statement;
+                    if (statement instanceof J.VariableDeclarations varDecls) {
                         if (varDecls.getVariables().stream().anyMatch(it -> fieldNames.contains(it.getSimpleName()))
                             && (varDecls.hasModifier(J.Modifier.Type.Final))) {
                             varDecls = varDecls.withModifiers(ListUtils.map(varDecls.getModifiers(), mod -> mod.getType() == J.Modifier.Type.Final ? null : mod));
@@ -332,7 +330,7 @@ public class ParameterizedRunnerToParameterized extends Recipe {
                         annotation = parameterizedTestTemplate.apply(
                                 new Cursor(getCursor(), annotation),
                                 annotation.getCoordinates().replace(),
-                                parameterizedTestAnnotationParameters.get(0)
+                                parameterizedTestAnnotationParameters.getFirst()
                         );
                     }
                     if (!annotationComments.isEmpty()) {
@@ -349,7 +347,7 @@ public class ParameterizedRunnerToParameterized extends Recipe {
                         m.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName))
                 );
                 assert m.getBody() != null;
-                JavaCoordinates newStatementCoordinates = !m.getBody().getStatements().isEmpty() ? m.getBody().getStatements().get(0).getCoordinates().before() : m.getBody().getCoordinates().lastStatement();
+                JavaCoordinates newStatementCoordinates = !m.getBody().getStatements().isEmpty() ? m.getBody().getStatements().getFirst().getCoordinates().before() : m.getBody().getCoordinates().lastStatement();
                 m = initMethodStatementTemplate.apply(updateCursor(m), newStatementCoordinates, initStatementParamString);
                 m = maybeAutoFormat(m, m.withParameters(parameterizedTestMethodParameters), m.getName(), ctx, getCursor().getParentTreeCursor());
             }

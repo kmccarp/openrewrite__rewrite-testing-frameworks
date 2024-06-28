@@ -59,7 +59,7 @@ public class JMockitAnnotatedArgumentToMockito extends Recipe {
                         J.MethodDeclaration md = super.visitMethodDeclaration(methodDeclaration, ctx);
 
                         List<Statement> parameters = md.getParameters();
-                        if (!parameters.isEmpty() && !(parameters.get(0) instanceof J.Empty)) {
+                        if (!parameters.isEmpty() && !(parameters.getFirst() instanceof J.Empty)) {
                             maybeRemoveImport("mockit.Injectable");
                             maybeRemoveImport("mockit.Mocked");
                             maybeAddImport("org.mockito.Mockito");
@@ -69,8 +69,7 @@ public class JMockitAnnotatedArgumentToMockito extends Recipe {
 
                             // Remove any mocked parameters from the method declaration
                             md = md.withParameters(ListUtils.map(parameters, parameter -> {
-                                if (parameter instanceof J.VariableDeclarations) {
-                                    J.VariableDeclarations variableDeclarations = (J.VariableDeclarations) parameter;
+                                if (parameter instanceof J.VariableDeclarations variableDeclarations) {
                                     // Check if the parameter has the annotation "mockit.Mocked or mockit.Injectable"
                                     if (!FindAnnotations.find(variableDeclarations, "mockit.Injectable").isEmpty() ||
                                         !FindAnnotations.find(variableDeclarations, "mockit.Mocked").isEmpty() ) {
@@ -95,7 +94,7 @@ public class JMockitAnnotatedArgumentToMockito extends Recipe {
                                     md = addStatementsTemplate.apply(updateCursor(md),
                                             md.getBody().getCoordinates().firstStatement(),
                                             variableDeclarations.getTypeExpression().toString(),
-                                            variableDeclarations.getVariables().get(0).getSimpleName(),
+                                            variableDeclarations.getVariables().getFirst().getSimpleName(),
                                             variableDeclarations.getTypeExpression().toString());
                                 }
                             }

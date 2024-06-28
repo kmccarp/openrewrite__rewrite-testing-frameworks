@@ -126,10 +126,12 @@ public class TestRuleToTestInfo extends Recipe {
             J.VariableDeclarations varDecls = getCursor().pollMessage("has-testName-rule");
             J.MethodDeclaration beforeMethod = getCursor().pollMessage("before-method");
             if (varDecls != null) {
-                String testMethodStatement = "Optional<Method> testMethod = testInfo.getTestMethod();\n" +
-                                             "if (testMethod.isPresent()) {\n" +
-                                             "    this.#{} = testMethod.get().getName();\n" +
-                                             "}";
+                String testMethodStatement = """
+                                             Optional<Method> testMethod = testInfo.getTestMethod();
+                                             if (testMethod.isPresent()) {
+                                                 this.#{} = testMethod.get().getName();
+                                             }\
+                                             """;
                 if (beforeMethod == null) {
                     String t = "@BeforeEach\n" +
                                "public void setup(TestInfo testInfo) {" + testMethodStatement + "}";
@@ -144,7 +146,7 @@ public class TestRuleToTestInfo extends Recipe {
                             .apply(
                                     updateCursor(cd),
                                     cd.getBody().getCoordinates().lastStatement(),
-                                    varDecls.getVariables().get(0).getName().getSimpleName()
+                                    varDecls.getVariables().getFirst().getName().getSimpleName()
                             );
                     maybeAddImport("java.lang.reflect.Method");
                     maybeAddImport("java.util.Optional");
@@ -206,7 +208,7 @@ public class TestRuleToTestInfo extends Recipe {
                                 .apply(
                                         updateCursor(md),
                                         md.getBody().getCoordinates().lastStatement(),
-                                        varDecls.getVariables().get(0).getName().getSimpleName()),
+                                        varDecls.getVariables().getFirst().getName().getSimpleName()),
                         ctx,
                         getCursor().getParent()
                 );

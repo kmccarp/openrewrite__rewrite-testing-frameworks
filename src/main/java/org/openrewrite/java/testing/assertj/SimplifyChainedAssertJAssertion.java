@@ -78,8 +78,10 @@ public class SimplifyChainedAssertJAssertion extends Recipe {
 
     @Override
     public String getDescription() {
-        return "Many AssertJ chained assertions have dedicated assertions that function the same. " +
-               "It is best to use the dedicated assertions.";
+        return """
+               Many AssertJ chained assertions have dedicated assertions that function the same. \
+               It is best to use the dedicated assertions.\
+               """;
     }
 
     @Override
@@ -103,11 +105,11 @@ public class SimplifyChainedAssertJAssertion extends Recipe {
 
             // assertThat has method call
             J.MethodInvocation assertThat = (J.MethodInvocation) mi.getSelect();
-            if (!ASSERT_THAT_MATCHER.matches(assertThat) || !(assertThat.getArguments().get(0) instanceof J.MethodInvocation)) {
+            if (!ASSERT_THAT_MATCHER.matches(assertThat) || !(assertThat.getArguments().getFirst() instanceof J.MethodInvocation)) {
                 return mi;
             }
 
-            J.MethodInvocation assertThatArg = (J.MethodInvocation) assertThat.getArguments().get(0);
+            J.MethodInvocation assertThatArg = (J.MethodInvocation) assertThat.getArguments().getFirst();
             if (!CHAINED_ASSERT_MATCHER.matches(assertThatArg)) {
                 return mi;
             }
@@ -126,7 +128,7 @@ public class SimplifyChainedAssertJAssertion extends Recipe {
             }
 
             String template = getStringTemplateAndAppendArguments(assertThatArg, mi, arguments);
-            return applyTemplate(String.format(template, dedicatedAssertion), arguments, mi, ctx);
+            return applyTemplate(template.formatted(dedicatedAssertion), arguments, mi, ctx);
         }
 
         private J.MethodInvocation applyTemplate(String formattedTemplate, List<Expression> arguments, J.MethodInvocation mi, ExecutionContext ctx) {
@@ -139,8 +141,8 @@ public class SimplifyChainedAssertJAssertion extends Recipe {
     }
 
     private String getStringTemplateAndAppendArguments(J.MethodInvocation assertThatArg, J.MethodInvocation methodToReplace, List<Expression> arguments) {
-        Expression assertThatArgument = assertThatArg.getArguments().get(0);
-        Expression methodToReplaceArgument = methodToReplace.getArguments().get(0);
+        Expression assertThatArgument = assertThatArg.getArguments().getFirst();
+        Expression methodToReplaceArgument = methodToReplace.getArguments().getFirst();
         boolean assertThatArgumentIsEmpty = assertThatArgument instanceof J.Empty;
         boolean methodToReplaceArgumentIsEmpty = methodToReplaceArgument instanceof J.Empty;
 
@@ -175,8 +177,8 @@ public class SimplifyChainedAssertJAssertion extends Recipe {
             return methodToReplaceArgument;
         }
         // Only on the assertThat argument do we possibly replace the argument with the select; such as list.size() -> list
-        if (assertThatArgument instanceof J.MethodInvocation) {
-            Expression select = ((J.MethodInvocation) assertThatArgument).getSelect();
+        if (assertThatArgument instanceof J.MethodInvocation invocation) {
+            Expression select = invocation.getSelect();
             if (select != null) {
                 return select;
             }
@@ -186,8 +188,8 @@ public class SimplifyChainedAssertJAssertion extends Recipe {
 
     private boolean hasZeroArgument(J.MethodInvocation method) {
         List<Expression> arguments = method.getArguments();
-        if (arguments.size() == 1 && arguments.get(0) instanceof J.Literal) {
-            J.Literal literalArg = (J.Literal) arguments.get(0);
+        if (arguments.size() == 1 && arguments.getFirst() instanceof J.Literal) {
+            J.Literal literalArg = (J.Literal) arguments.getFirst();
             return literalArg.getValue() != null && literalArg.getValue().equals(0);
         }
         return false;

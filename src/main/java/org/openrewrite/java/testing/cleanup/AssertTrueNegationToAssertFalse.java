@@ -58,7 +58,7 @@ public class AssertTrueNegationToAssertFalse extends Recipe {
                 J.MethodInvocation mi = (J.MethodInvocation) super.visitMethodInvocation(method, ctx);
                 if (ASSERT_TRUE.matches(mi) && isUnaryOperatorNot(mi)) {
                     StringBuilder sb = new StringBuilder();
-                    J.Unary unary = (J.Unary) mi.getArguments().get(0);
+                    J.Unary unary = (J.Unary) mi.getArguments().getFirst();
                     if (mi.getSelect() == null) {
                         maybeRemoveImport("org.junit.jupiter.api.Assertions");
                         maybeAddImport("org.junit.jupiter.api.Assertions", "assertFalse");
@@ -94,8 +94,8 @@ public class AssertTrueNegationToAssertFalse extends Recipe {
             }
 
             private boolean isUnaryOperatorNot(J.MethodInvocation method) {
-                if (!method.getArguments().isEmpty() && method.getArguments().get(0) instanceof J.Unary) {
-                    J.Unary unary = (J.Unary) method.getArguments().get(0);
+                if (!method.getArguments().isEmpty() && method.getArguments().getFirst() instanceof J.Unary) {
+                    J.Unary unary = (J.Unary) method.getArguments().getFirst();
                     return unary.getOperator().equals(J.Unary.Type.Not);
                 }
 

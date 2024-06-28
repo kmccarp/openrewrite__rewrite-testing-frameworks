@@ -144,9 +144,9 @@ class ArgumentMatchersRewriter {
             // ((int) any) to anyInt(), ((long) any) to anyLong(), etc
             argumentMatcher = PRIMITIVE_TO_MOCKITO_ARGUMENT_MATCHER.get(type);
             template = argumentMatcher + "()";
-        } else if (type instanceof JavaType.FullyQualified) {
+        } else if (type instanceof JavaType.FullyQualified qualified) {
             // ((<type>) any) to any(<type>.class)
-            return rewriteFullyQualifiedToArgumentMatcher(methodArgument, (JavaType.FullyQualified) type);
+            return rewriteFullyQualifiedToArgumentMatcher(methodArgument, qualified);
         }
         if (template == null || argumentMatcher == null) {
             // unhandled type, return argument unchanged
@@ -201,15 +201,15 @@ class ArgumentMatchersRewriter {
                 argumentMatcher, template, templateParams);
 
         // update the Class type parameter and method return type
-        Expression classArgument = (Expression) templateParams.get(0);
+        Expression classArgument = (Expression) templateParams.getFirst();
         if (classArgument.getType() == null
                 || invocationArgument.getMethodType() == null
                 || invocationArgument.getMethodType().getParameterTypes().size() != 1
-                || !(invocationArgument.getMethodType().getParameterTypes().get(0) instanceof JavaType.Parameterized)) {
+                || !(invocationArgument.getMethodType().getParameterTypes().getFirst() instanceof JavaType.Parameterized)) {
             return invocationArgument;
         }
         JavaType.Parameterized newParameterType =
-                ((JavaType.Parameterized) invocationArgument.getMethodType().getParameterTypes().get(0))
+                ((JavaType.Parameterized) invocationArgument.getMethodType().getParameterTypes().getFirst())
                         .withTypeParameters(Collections.singletonList(classArgument.getType()));
         JavaType.Method newMethodType = invocationArgument.getMethodType()
                 .withReturnType(classArgument.getType())
@@ -218,8 +218,8 @@ class ArgumentMatchersRewriter {
     }
 
     private static boolean isJmockitArgumentMatcher(Expression expression) {
-        if (expression instanceof J.TypeCast) {
-            expression = ((J.TypeCast) expression).getExpression();
+        if (expression instanceof J.TypeCast cast) {
+            expression = cast.getExpression();
         }
         if (!(expression instanceof J.Identifier)) {
             return false;

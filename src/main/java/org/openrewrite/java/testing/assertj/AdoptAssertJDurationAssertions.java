@@ -113,14 +113,14 @@ public class AdoptAssertJDurationAssertions extends Recipe {
         }
 
         private J.MethodInvocation simplifyMultipleAssertions(J.MethodInvocation m, ExecutionContext ctx) {
-            Expression isEqualToArg = m.getArguments().get(0);
+            Expression isEqualToArg = m.getArguments().getFirst();
             Expression select = m.getSelect();
             List<Object> templateParameters = new ArrayList<>();
             templateParameters.add(null);
             Expression asDescription = null;
 
             if (AS_MATCHER.matches(select)) {
-                asDescription = ((J.MethodInvocation) select).getArguments().get(0);
+                asDescription = ((J.MethodInvocation) select).getArguments().getFirst();
                 select = ((J.MethodInvocation) select).getSelect();
                 templateParameters.add(asDescription);
             }
@@ -129,7 +129,7 @@ public class AdoptAssertJDurationAssertions extends Recipe {
                 return m;
             }
 
-            Expression assertThatArgumentExpr = ((J.MethodInvocation) select).getArguments().get(0);
+            Expression assertThatArgumentExpr = ((J.MethodInvocation) select).getArguments().getFirst();
             if (!(assertThatArgumentExpr instanceof J.MethodInvocation)) {
                 return m;
             }
@@ -155,26 +155,25 @@ public class AdoptAssertJDurationAssertions extends Recipe {
         }
 
         private boolean isZero(Expression isEqualToArg) {
-            if (isEqualToArg instanceof J.Literal) {
-                J.Literal literal = (J.Literal) isEqualToArg;
+            if (isEqualToArg instanceof J.Literal literal) {
                 return literal.getValue() instanceof Number && ((Number) literal.getValue()).longValue() == 0;
             }
             return false;
         }
 
         private J.MethodInvocation simplifyTimeUnits(J.MethodInvocation m, ExecutionContext ctx) {
-            Expression arg = m.getArguments().get(0);
+            Expression arg = m.getArguments().getFirst();
             Long argValue = SimplifyDurationCreationUnits.getConstantIntegralValue(arg);
             if (argValue == null) {
                 return m;
             }
 
             List<Object> unitInfo = getUnitInfo(m.getSimpleName(), Math.toIntExact(argValue));
-            String methodName = (String) unitInfo.get(0);
+            String methodName = (String) unitInfo.getFirst();
             int methodArg = (int) unitInfo.get(1);
             if (!(m.getSimpleName().equals(methodName))) {
                 // update method invocation with new name and arg
-                String template = String.format("#{any()}.%s(%d)", methodName, methodArg);
+                String template = "#{any()}.%s(%d)".formatted(methodName, methodArg);
                 return applyTemplate(ctx, m, template, m.getSelect());
             }
 
@@ -235,11 +234,11 @@ public class AdoptAssertJDurationAssertions extends Recipe {
         private String formatTemplate(String template, String methodName, Object asDescriptionArg) {
             String replacementMethod = METHOD_MAP.get(methodName);
             if (asDescriptionArg == null) {
-                return String.format(template, replacementMethod);
+                return template.formatted(replacementMethod);
             }
             StringBuilder newTemplate = new StringBuilder(template);
             newTemplate.insert(newTemplate.indexOf(").") + 1, ".as(#{any()})");
-            return String.format(newTemplate.toString(), replacementMethod);
+            return newTemplate.toString().formatted(replacementMethod);
         }
     }
 }
